@@ -33,9 +33,10 @@ export default function ChatInterface({ messages, onMessagesChange, onReady }: P
 
   const sendMessage = async () => {
     if (!input.trim() || loading) return
-    const newMessages: Message[] = [...messages, { role: 'user', content: input.trim() }]
-    onMessagesChange(newMessages)
+    const text = input.trim()
     setInput('')
+    const newMessages: Message[] = [...messages, { role: 'user', content: text }]
+    onMessagesChange(newMessages)
     setLoading(true)
     const res = await fetch('/api/chat', {
       method: 'POST',
@@ -91,7 +92,6 @@ export default function ChatInterface({ messages, onMessagesChange, onReady }: P
           <textarea
             value={input}
             onChange={e => setInput(e.target.value)}
-            onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage() } }}
             placeholder="気持ちを話してみてください"
             rows={2}
             className="flex-1 border border-gray-200 rounded-xl px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-rose-300"
