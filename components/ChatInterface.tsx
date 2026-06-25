@@ -27,7 +27,7 @@ export default function ChatInterface({ messages, onMessagesChange, onReady }: P
       body: JSON.stringify({ messages: [], phase: 'chat' }),
     })
     const data = await res.json()
-    onMessagesChange([{ role: 'assistant', content: data.message }])
+    onMessagesChange([{ role: 'assistant', content: data.message || data.error || 'エラーが発生しました' }])
     setLoading(false)
   }
 
@@ -43,7 +43,7 @@ export default function ChatInterface({ messages, onMessagesChange, onReady }: P
       body: JSON.stringify({ messages: newMessages, phase: 'chat' }),
     })
     const data = await res.json()
-    onMessagesChange([...newMessages, { role: 'assistant', content: data.message }])
+    onMessagesChange([...newMessages, { role: 'assistant', content: data.message || data.error || 'エラーが発生しました' }])
     setLoading(false)
   }
 
