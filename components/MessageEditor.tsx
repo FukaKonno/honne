@@ -17,16 +17,26 @@ export default function MessageEditor({ chatMessages, onSave, onBack }: Props) {
   const [saving, setSaving] = useState(false)
   const [copied, setCopied] = useState(false)
   const [commentGenerated, setCommentGenerated] = useState(false)
+  const [error, setError] = useState('')
 
   const generateComment = async () => {
     setGenerating(true)
+    setError('')
+    const messagesToSend = chatMessages.length > 0
+      ? chatMessages
+      : [{ role: 'user' as const, content: `次のメッセージへの補足コメントを書いてください：${userMessage}` }]
     const res = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ messages: chatMessages, phase: 'comment' }),
+      body: JSON.stringify({ messages: messagesToSend, phase: 'comment' }),
     })
     const data = await res.json()
-    setAiComment(data.message)
+    if (data.error) {
+      setError('コメントの生成に失敗しました。もう一度お試しください。')
+      setGenerating(false)
+      return
+    }
+    setAiComment(data.message || '')
     setCommentGenerated(true)
     setGenerating(false)
   }
@@ -57,6 +67,8 @@ export default function MessageEditor({ chatMessages, onSave, onBack }: Props) {
           className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-rose-300"
         />
       </div>
+
+      {error && <p className="text-red-500 text-sm">{error}</p>}
 
       {!commentGenerated ? (
         <button
