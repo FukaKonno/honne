@@ -58,7 +58,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen">
       <header className="bg-white border-b border-rose-100 px-4 py-3 flex items-center justify-between">
-        <h1 className="text-rose-500 font-bold text-lg">AI本音</h1>
+        <h1 className="text-rose-500 font-bold text-lg">AI honne</h1>
         <div className="flex gap-2 items-center">
           <button
             onClick={() => router.push('/new')}
