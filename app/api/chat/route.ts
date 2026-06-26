@@ -5,17 +5,19 @@ const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
 export async function POST(req: NextRequest) {
   try {
-    const { messages, phase } = await req.json()
+    const { messages, phase, userMessage } = await req.json()
+
+    const commentContext = userMessage ? `\n\nユーザーが書いたメッセージ本文：「${userMessage}」` : ''
 
     const systemPrompt = phase === 'comment'
-      ? `あなたは感情整理の専門家です。ユーザーとの会話を読んで、ユーザーが伝えたい相手へのメッセージに添える補足コメントを生成してください。
+      ? `あなたは感情整理の専門家です。以下の情報を元に、メッセージに添える補足コメントを生成してください。${commentContext}
 
 補足コメントの要件：
-- ユーザーの気持ちや状況を第三者視点で簡潔に説明する
-- 受け取る相手が文脈を理解しやすくなる内容
+- メッセージを受け取る相手が背景・文脈を理解できるよう第三者視点で説明する
+- 送った人の気持ちや状況を温かく伝える
 - 100〜200文字程度
-- 温かく共感的なトーン
 - 「この方は...」「送り主の方は...」など第三者視点で書く
+- 質問は絶対にしない。コメント文のみ返す
 
 補足コメントのみを返してください。説明や前置きは不要です。`
       : `あなたは感情整理のサポーターです。ユーザーが本音を伝えにくい相手へのメッセージを作る手助けをします。
@@ -35,6 +37,11 @@ export async function POST(req: NextRequest) {
     let apiMessages = messages.length === 0
       ? [{ role: 'user' as const, content: 'はじめてください' }]
       : messages
+
+    // comment phase with no chat history: use userMessage directly
+    if (phase === 'comment' && messages.length === 0) {
+      apiMessages = [{ role: 'user' as const, content: 'はじめてください' }]
+    }
 
     // Anthropic requires messages to start with 'user'
     if (apiMessages[0]?.role === 'assistant') {
