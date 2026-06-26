@@ -48,10 +48,10 @@ export async function POST(req: NextRequest) {
       messages: apiMessages,
     })
 
-    const content = response.content[0]
-    if (content.type !== 'text') throw new Error('Unexpected response type')
+    const textBlock = response.content.find(c => c.type === 'text')
+    if (!textBlock || textBlock.type !== 'text') throw new Error('No text in response')
 
-    return NextResponse.json({ message: content.text })
+    return NextResponse.json({ message: textBlock.text })
   } catch (error) {
     console.error(error)
     return NextResponse.json({ error: 'エラーが発生しました' }, { status: 500 })
