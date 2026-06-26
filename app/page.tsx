@@ -48,7 +48,7 @@ export default function Home() {
     <div className="min-h-screen flex flex-col items-center justify-center px-6">
       <div className="w-full max-w-sm space-y-8">
         <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold text-rose-500">AI本音</h1>
+          <h1 className="text-3xl font-bold text-rose-500">AI honne</h1>
           <p className="text-gray-500 text-sm">伝えたい気持ちを、言葉にする</p>
         </div>
 
