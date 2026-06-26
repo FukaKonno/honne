@@ -22,13 +22,10 @@ export default function MessageEditor({ chatMessages, onSave, onBack }: Props) {
   const generateComment = async () => {
     setGenerating(true)
     setError('')
-    const messagesToSend = chatMessages.length > 0
-      ? chatMessages
-      : [{ role: 'user' as const, content: `次のメッセージへの補足コメントを書いてください：${userMessage}` }]
     const res = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ messages: messagesToSend, phase: 'comment' }),
+      body: JSON.stringify({ messages: chatMessages, userMessage, phase: 'comment' }),
     })
     const data = await res.json()
     if (data.error) {
