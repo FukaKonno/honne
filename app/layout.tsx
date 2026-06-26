@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'AI本音 - 伝えたい気持ちを言葉にする',
+  title: 'AI honne - 伝えたい気持ちを言葉にする',
   description: '本音を伝えにくい相手へのメッセージを、AIと一緒に作るアプリ',
 }
 
