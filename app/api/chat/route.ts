@@ -32,9 +32,14 @@ export async function POST(req: NextRequest) {
 
 返答は短く、温かく。一度に一つの質問だけしてください。`
 
-    const apiMessages = messages.length === 0
+    let apiMessages = messages.length === 0
       ? [{ role: 'user' as const, content: 'はじめてください' }]
       : messages
+
+    // Anthropic requires messages to start with 'user'
+    if (apiMessages[0]?.role === 'assistant') {
+      apiMessages = [{ role: 'user' as const, content: 'はじめてください' }, ...apiMessages]
+    }
 
     const response = await anthropic.messages.create({
       model: 'claude-haiku-4-5-20251001',
