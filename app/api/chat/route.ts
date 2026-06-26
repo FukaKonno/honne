@@ -38,12 +38,6 @@ export async function POST(req: NextRequest) {
       ? [{ role: 'user' as const, content: 'はじめてください' }]
       : messages
 
-    // comment phase with no chat history: use userMessage directly
-    if (phase === 'comment' && messages.length === 0) {
-      apiMessages = [{ role: 'user' as const, content: 'はじめてください' }]
-    }
-
-    // Anthropic requires messages to start with 'user'
     if (apiMessages[0]?.role === 'assistant') {
       apiMessages = [{ role: 'user' as const, content: 'はじめてください' }, ...apiMessages]
     }
