@@ -49,8 +49,14 @@ export async function POST(req: NextRequest) {
       messages: apiMessages,
     })
 
+       console.log('response.content:', JSON.stringify(response.content))
+    console.log('stop_reason:', response.stop_reason)
+
     const textBlock = response.content.find(c => c.type === 'text')
-    if (!textBlock || textBlock.type !== 'text') throw new Error('No text in response')
+    if (!textBlock || textBlock.type !== 'text') {
+      console.error('No text block found in:', JSON.stringify(response.content))
+      throw new Error('No text in response')
+    }
 
     return NextResponse.json({ message: textBlock.text })
   } catch (error) {
