@@ -7,10 +7,8 @@ export async function POST(req: NextRequest) {
   try {
     const { messages, phase, userMessage } = await req.json()
 
-    const commentContext = userMessage ? `\n\nユーザーが書いたメッセージ本文：「${userMessage}」` : ''
-
     const systemPrompt = phase === 'comment'
-      ? `あなたは感情整理の専門家です。以下の情報を元に、メッセージに添える補足コメントを生成してください。${commentContext}
+      ? `あなたは感情整理の専門家です。ユーザーが書いたメッセージに添える補足コメントを生成してください。
 
 補足コメントの要件：
 - メッセージを受け取る相手が背景・文脈を理解できるよう第三者視点で説明する
@@ -34,12 +32,17 @@ export async function POST(req: NextRequest) {
 
 返答は短く、温かく。一度に一つの質問だけしてください。`
 
-    let apiMessages = messages.length === 0
-      ? [{ role: 'user' as const, content: 'はじめてください' }]
-      : messages
+    let apiMessages: { role: 'user' | 'assistant'; content: string }[]
 
-    if (apiMessages[0]?.role === 'assistant') {
-      apiMessages = [{ role: 'user' as const, content: 'はじめてください' }, ...apiMessages]
+    if (phase === 'comment') {
+      apiMessages = [{ role: 'user', content: userMessage || 'メッセージを書きました' }]
+    } else {
+      apiMessages = messages.length === 0
+        ? [{ role: 'user', content: 'はじめてください' }]
+        : messages
+      if (apiMessages[0]?.role === 'assistant') {
+        apiMessages = [{ role: 'user', content: 'はじめてください' }, ...apiMessages]
+      }
     }
 
     const response = await anthropic.messages.create({
@@ -49,14 +52,8 @@ export async function POST(req: NextRequest) {
       messages: apiMessages,
     })
 
-       console.log('response.content:', JSON.stringify(response.content))
-    console.log('stop_reason:', response.stop_reason)
-
     const textBlock = response.content.find(c => c.type === 'text')
-    if (!textBlock || textBlock.type !== 'text') {
-      console.error('No text block found in:', JSON.stringify(response.content))
-      throw new Error('No text in response')
-    }
+    if (!textBlock || textBlock.type !== 'text') throw new Error('No text in response')
 
     return NextResponse.json({ message: textBlock.text })
   } catch (error) {
